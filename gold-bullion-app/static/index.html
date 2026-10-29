@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پایش لحظه‌ای قیمت واقعی شمش طلا ۲۴ عیار ایران | اپلیکیشن زنده</title>
+    <!-- Google Fonts: Vazirmatn -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Chart.js for real-time trend analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --bg-body: #070a0f;
+            --bg-card: #0d121d;
+            --bg-card-hover: #131b2a;
+            --bg-subtle: #182236;
+            --gold-primary: #f59e0b;
+            --gold-light: #fbbf24;
+            --gold-dark: #b45309;
+            --gold-glow: rgba(245, 158, 11, 0.25);
+            --silver-primary: #94a3b8;
+            --emerald-green: #10b981;
+            --rose-red: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --border-subtle: #1e293b;
+            --border-focus: #f59e0b;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+            --shadow-gold: 0 0 30px -5px rgba(245, 158, 11, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding-bottom: 60px;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 15% 10%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 45%);
+        }
+
+        .num {
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 24px;
+        }
+
+        /* Header Navigation */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: rgba(13, 18, 29, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+            position: sticky;
+            top: 16px;
+            z-index: 50;
+            box-shadow: var(--shadow-card);
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .gold-icon-badge {
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 900;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+        }
+
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-text p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* 30s Countdown Widget */
+        .countdown-widget {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-subtle);
+            padding: 6px 14px;
+            border-radius: 50px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .timer-circle {
+            position: relative;
+            width: 32px;
+            height: 32px;
+        }
+
+        .timer-circle svg {
+            width: 32px;
+            height: 32px;
+            transform: rotate(-90deg);
+        }
+
+        .timer-circle circle {
+            fill: none;
+            stroke-width: 3.5;
+            cx: 16;
+            cy: 16;
+            r: 13;
+        }
+
+        .timer-bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .timer-progress {
+            stroke: var(--gold-primary);
+            stroke-dasharray: 81.68;
+            stroke-dashoffset: 0;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s linear, stroke 0.3s ease;
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--gold-light);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--emerald-green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px var(--emerald-green);
+            animation: pulse-live 1.8s infinite;
+        }
+
+        @keyframes pulse-live {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 14px var(--emerald-green); }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* Currency Toggle */
+        .currency-toggle {
+            display: flex;
+            background: var(--bg-body);
+            border: 1px solid var(--border-subtle);
+            border-radius: 30px;
+            padding: 3px;
+        }
+
+        .curr-btn {
+            background: transparent;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 25px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .curr-btn.active {
+            background: var(--gold-primary);
+            color: #000;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-action {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            padding: 7px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            border-color: var(--gold-primary);
+            background: var(--bg-card-hover);
+        }
+
+        /* Primary Hero Section: The 24k Bullion Truth Engine */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .hero-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            position: relative;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.2s, border-color 0.2s;
+            overflow: hidden;
+        }
+
+        .hero-card.highlight {
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: var(--shadow-gold), var(--shadow-card);
+            background: linear-gradient(145deg, #101625, #0c101a);
+        }
+
+        .hero-card.highlight::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .card-header-tag {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: var(--bg-subtle);
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .card-badge.gold {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--gold-light);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .main-price-val {
+            font-size: 2.25rem;
+            font-weight: 900;
+            color: #fff;
+            margin: 8px 0;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .main-price-val .curr-unit {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--gold-light);
+        }
+
+        .price-sub {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 14px;
+        }
+
+        .formula-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            font-size: 0.78rem;
+            color: var(--gold-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        /* Bubble Card Metrics */
+        .bubble-meter-container {
+            margin: 16px 0;
+        }
+
+        .bubble-track {
+            height: 10px;
+            background: #1e293b;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .bubble-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+            transition: width 0.6s ease;
+        }
+
+        .bubble-value-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .bubble-large-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .bubble-status-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        /* Market Benchmark Tickers Row */
+        .tickers-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .ticker-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .ticker-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .ticker-val {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .ticker-change {
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .up { color: var(--emerald-green); }
+        .down { color: var(--rose-red); }
+
+        /* Main Tabs / Content Split */
+        .tabs-header {
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: 20px;
+            padding-bottom: 6px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 18px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--gold-light);
+            background: var(--bg-subtle);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            right: 0;
+            left: 0;
+            height: 3px;
+            background: var(--gold-primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* Bullion Bars Grid */
+        .bullion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .bar-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .bar-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(245, 158, 11, 0.35);
+            background: var(--bg-card-hover);
+        }
+
+        .bar-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .bar-weight {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .bar-tag {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--bg-subtle);
+            color: var(--text-muted);
+        }
+
+        .bar-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .bar-row .label { color: var(--text-muted); }
+        .bar-row .val { font-weight: 700; color: #fff; }
+        .bar-row .val.fair { color: var(--gold-light); }
+        .bar-row .val.bubble { font-size: 0.8rem; font-weight: 600; }
+
+        /* Comparisons & Analytics Layout */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Calculator & Tools */
+        .tools-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: var(--bg-body);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: var(--gold-primary);
+        }
+
+        .calc-result-box {
+            background: var(--bg-subtle);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            border: 1px solid var(--border-subtle);
+            margin-top: 14px;
+        }
+
+        /* Event / Live Log */
+        .logs-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 18px 22px;
+            margin-top: 24px;
+        }
+
+        .logs-list {
+            list-style: none;
+            max-height: 140px;
+            overflow-y: auto;
+            font-size: 0.78rem;
+            font-family: monospace;
+            color: var(--text-muted);
+        }
+
+        .logs-list li {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .log-time { color: var(--gold-light); font-weight: 600; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            max-width: 650px;
+            width: 90%;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 12px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .code-snippet {
+            background: #05080e;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            margin: 10px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Flash Tick Animation */
+        @keyframes tick-flash {
+            0% { background-color: rgba(245, 158, 11, 0.25); }
+            100% { background-color: transparent; }
+        }
+
+        .flash-tick {
+            animation: tick-flash 0.9s ease-out;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1080px) {
+            .hero-grid { grid-template-columns: 1fr; }
+            .tickers-row { grid-template-columns: 1fr 1fr; }
+            .analytics-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 640px) {
+            header { flex-direction: column; align-items: flex-start; gap: 14px; }
+            .header-actions { width: 100%; justify-content: space-between; }
+            .tickers-row { grid-template-columns: 1fr; }
+            .main-price-val { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="brand-section">
+            <div class="gold-icon-badge">24K</div>
+            <div class="brand-text">
+                <h1>سامانه زنده قیمت واقعی شمش طلا ۲۴ عیار ایران</h1>
+                <p>محاسبه ارزش ذاتی بر اساس انس TradingView و دلار TGJU | به‌روزرسانی خودکار هر ۳۰ ثانیه</p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <!-- 30s Countdown -->
+            <div class="countdown-widget" title="زمان باقی‌مانده تا به‌روزرسانی بعدی نرخ‌ها">
+                <div class="timer-circle">
+                    <svg>
+                        <circle class="timer-bg"></circle>
+                        <circle id="timerProgress" class="timer-progress"></circle>
+                    </svg>
+                    <span id="countdownText" class="timer-text num">30</span>
+                </div>
+                <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);"><span class="pulse-dot"></span> زنده</span>
+            </div>
+
+            <!-- Currency Toggle -->
+            <div class="currency-toggle">
+                <button id="btnToman" class="curr-btn active" onclick="setCurrency('toman')">تومان</button>
+                <button id="btnRial" class="curr-btn" onclick="setCurrency('rial')">ریال</button>
+            </div>
+
+            <!-- Manual Refresh -->
+            <button class="btn-action" onclick="manualRefresh()" title="به‌روزرسانی فوری داده‌ها">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <span>تازه‌سازی</span>
+            </button>
+
+            <!-- Domain & Deploy Info -->
+            <button class="btn-action" onclick="openDomainModal()" title="راهنمای اتصال به دامین و استقرار">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                <span>اتصال به دامین</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Offline Alert Notice Banner -->
+    <div id="offlineNotice" style="display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: var(--radius-md); padding: 14px 20px; margin-bottom: 20px; color: #fca5a5; font-size: 0.85rem; line-height: 1.8; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <strong style="color: #f87171; font-size: 0.95rem; display: block; margin-bottom: 4px;">⚠️ سرور بک‌اند پایتون هنوز در حال اجرا نیست!</strong>
+                <span>برای اینکه نرخ‌های لحظه‌ای و دقیق طلا از <strong>TradingView</strong> و دلار آزاد از <strong>TGJU</strong> دریافت شوند، فایل <code>start.bat</code> را در پوشه برنامه اجرا کنید، یا در مرورگر به <strong><a href="http://localhost:8000" style="color: var(--gold-light); text-decoration: underline;">http://localhost:8000</a></strong> مراجعه فرمایید.</span>
+                <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 4px;">(نکته: در مرورگر شما این صفحه مستقیماً به صورت File باز شده است؛ با اجرای سرور پایتون، ارتباط خودکار برقرار می‌شود.)</div>
+            </div>
+            <button class="btn-action" onclick="fetchRates()" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fff;">
+                تلاش مجدد برای اتصال
+            </button>
+        </div>
+    </div>
+
+    <!-- Hero Stage: 24k Bullion Truth Engine -->
+    <div class="hero-grid">
+        <!-- Card 1: Real Intrinsic Fair Price of 24k Bullion -->
+        <div id="cardFair24" class="hero-card highlight">
+            <div class="card-header-tag">
+                <span class="card-badge gold">مرجع ریاضی و جهانی</span>
+                <span id="syncBadge" style="font-size: 0.75rem; color: var(--text-dim);" class="num">در حال ارتباط...</span>
+            </div>
+            <div class="card-title">ارزش واقعی و ذاتی ۱ گرم شمش طلا ۲۴ عیار (۹۹۹.۹)</div>
+            <div class="main-price-val num">
+                <span id="fairGramPrice">---,---</span>
+                <span class="curr-unit" id="currUnit1">تومان</span>
+            </div>
+            <div class="price-sub">
+                معادل هر کیلوگرم شمش خالص: <strong id="fairKgPrice" class="num" style="color: #fff;">---</strong> <span class="curr-unit-text">تومان</span>
+            </div>
+            <div class="formula-box">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4m0-4h.01"></path></svg>
+                <span id="formulaText">فرمول: (انس طلای جهانی × دلار آزاد) ÷ ۳۱.۱۰۳۵</span>
+            </div>
+        </div>
+
+        <!-- Card 2: Market Price in Iran (TGJU) -->
+        <div id="cardMarket24" class="hero-card">
+            <div class="card-header-tag">
+                <span class="card-badge">مظنه بازار داخلی</span>
+                <span style="font-size: 0.72rem; color: var(--text-dim);">منبع: TGJU</span>
+            </div>
+            <div class="card-title">نرخ بازار هر گرم طلای ۲۴ عیار در بازار ایران</div>
+            <div class="main-price-val num">
+                <span id="marketGramPrice">---,---</span>
+                <span class="curr-unit" id="currUnit2">تومان</span>
+            </div>
+            <div class="price-sub">
+                مظنه هر کیلوگرم در بازار: <strong id="marketKgPrice" class="num" style="color: #fff;">---</strong> <span class="curr-unit-text">تومان</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 18px;">
+                آخرین ثبت معاملاتی صنف طلا و جواهر تهران
+            </div>
+        </div>
+
+        <!-- Card 3: 24k Bullion Bubble Meter -->
+        <div id="cardBubble24" class="hero-card">
+            <div class="card-header-tag">
+                <span class="card-badge">تحلیل حباب قیمتی</span>
+                <span id="riskBadge" class="card-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">نرمال</span>
+            </div>
+            <div class="card-title">حباب هر گرم شمش ۲۴ نسبت به ارزش ذاتی</div>
+
+            <div class="bubble-meter-container">
+                <div class="bubble-value-display">
+                    <span id="bubblePercentText" class="bubble-large-num num" style="color: var(--emerald-green);">۰.۰۰٪</span>
+                    <span id="bubbleAmountText" class="num" style="font-size: 0.95rem; font-weight: 700; color: var(--text-muted);">--- تومان</span>
+                </div>
+                <div class="bubble-track" style="margin-top: 10px;">
+                    <div id="bubbleProgressBar" class="bubble-fill" style="width: 25%;"></div>
+                </div>
+            </div>
+
+            <div id="bubbleStatusText" class="price-sub" style="font-size: 0.82rem; font-weight: 600;">
+                در حال محاسبه وضعیت حباب...
+            </div>
+            <div style="font-size: 0.76rem; color: var(--text-dim);">
+                حباب هر کیلوگرم شمش: <span id="bubbleKgText" class="num" style="color: var(--text-main); font-weight: 700;">---</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Market Benchmarks Row (Inputs from TradingView & TGJU) -->
+    <div class="tickers-row">
+        <!-- TradingView Gold Ounce -->
+        <div class="ticker-card">
+            <div class="ticker-label">
+                <span>انس جهانی طلا (XAU/USD)</span>
+                <span style="color: var(--gold-light);">TradingView</span>
+            </div>
+            <div id="tvOuncePrice" class="ticker-val num">$---.--</div>
+            <div id="tvOunceChange" class="ticker-change num up">
+                <span>▲</span> <span>+0.00%</span>
+            </div>
+        </div>
+
+        <!-- TGJU Free USD -->
+        <div class="ticker-card">
+            <div class="ticker-label">
+                <span>دلار آزاد تهران</span>
+                <span>TGJU</span>
+            </div>
+            <div id="tgjuUsdPrice" class="ticker-val num">---,---</div>
+            <div id="tgjuUsdChange" class="ticker-change num up">
+                <span>▲</span> <span>+0.00%</span>
+            </div>
+        </div>
+
+        <!-- TradingView Silver Ounce -->
+        <div class="ticker-card">
+            <div class="ticker-label">
+                <span>انس نقره جهانی (XAG/USD)</span>
+                <span style="color: var(--silver-primary);">TradingView</span>
+            </div>
+            <div id="tvSilverPrice" class="ticker-val num">$---.--</div>
+            <div id="goldSilverRatio" class="ticker-change num" style="color: var(--text-muted);">
+                نسبت طلا به نقره: ---
+            </div>
+        </div>
+
+        <!-- TGJU 18k Gold -->
+        <div class="ticker-card">
+            <div class="ticker-label">
+                <span>طلای ۱۸ عیار بازار تهران</span>
+                <span>TGJU</span>
+            </div>
+            <div id="tgju18Price" class="ticker-val num">---,---</div>
+            <div id="bubble18kText" class="ticker-change num" style="color: var(--text-muted);">
+                حباب ۱۸ عیار: ---
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="tabs-header">
+        <button id="tabBtnBars" class="tab-btn active" onclick="switchTab('bars')">ابعاد و اوزان استاندارد شمش طلا</button>
+        <button id="tabBtnCompare" class="tab-btn" onclick="switchTab('compare')">مقایسه تحلیلی (۱۸، ۲۴ و نقره ۹۹۹)</button>
+        <button id="tabBtnCalc" class="tab-btn" onclick="switchTab('calc')">ماشین‌حساب هوشمند شمش طلا</button>
+    </div>
+
+    <!-- Tab 1: Standard Bullion Bars Matrix -->
+    <div id="tabContentBars">
+        <div class="bullion-grid" id="barsGridContainer">
+            <!-- Rendered dynamically -->
+        </div>
+    </div>
+
+    <!-- Tab 2: Comparisons & Analytics (18k, 24k, Silver 999, Mithqal) -->
+    <div id="tabContentCompare" style="display: none;">
+        <div class="analytics-grid">
+            <!-- Trend Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 style="font-size: 1rem; font-weight: 700;">نمودار زنده روند ارزش ذاتی و نرخ بازار شمش طلا</h3>
+                        <p style="font-size: 0.78rem; color: var(--text-muted);">ثبت داده‌ها در دوره‌های ۳۰ ثانیه‌ای</p>
+                    </div>
+                    <span class="card-badge gold">Chart.js Live</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="bullionTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Comparison Table Card -->
+            <div class="tools-card">
+                <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 14px;">جدول مقایسه جامع مصنوعات و نقره</h3>
+                <div style="display: flex; flex-direction: column; gap: 12px;" id="compareTableContainer">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 3: Interactive Bullion Calculator -->
+    <div id="tabContentCalc" style="display: none;">
+        <div class="analytics-grid">
+            <div class="tools-card">
+                <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 14px;">محاسبه‌گر ارزش شمش بر مبنای وزن دلخواه</h3>
+                <div class="input-group">
+                    <label>وزن دقیق شمش مورد نظر (گرم):</label>
+                    <input type="number" id="calcWeightInput" class="input-field num" value="10" step="0.1" oninput="runCalculator()">
+                </div>
+                <div class="calc-result-box" id="calcWeightResult">
+                    <!-- Result -->
+                </div>
+            </div>
+
+            <div class="tools-card">
+                <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 14px;">محاسبه‌گر قدرت خرید با بودجه ریالی / تومانی</h3>
+                <div class="input-group">
+                    <label>مبلغ سرمایه شما (تومان):</label>
+                    <input type="number" id="calcBudgetInput" class="input-field num" value="50000000" step="1000000" oninput="runCalculator()">
+                </div>
+                <div class="calc-result-box" id="calcBudgetResult">
+                    <!-- Result -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Event Logs Feed -->
+    <div class="logs-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="pulse-dot"></span>
+                <span style="font-size: 0.85rem; font-weight: 700;">لاگ تغییرات و ارتباط ۳۰ ثانیه‌ای موتور داده</span>
+            </div>
+            <span id="wsStatusBadge" style="font-size: 0.72rem; color: var(--emerald-green);">WebSocket: متصل</span>
+        </div>
+        <ul id="eventLogsList" class="logs-list">
+            <li><span class="log-time">[سیستم]</span> راه‌اندازی ترمینال مالی شمش طلا ۲۴ عیار...</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Modal: Domain & Deployment Guide -->
+<div id="domainModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--gold-light);">راهنمای اتصال اپلیکیشن به دامنه شخصی</h3>
+            <button class="close-btn" onclick="closeDomainModal()">&times;</button>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.8;">
+            <p>این برنامه با بک‌اند پایتون FastAPI و موتور واکشی مستقل ۳۰ ثانیه‌ای طراحی شده است و آماده اتصال مستقیم به هر دامین اینترنتی (مثل <code>gold.yourdomain.com</code>) است:</p>
+
+            <h4 style="color: #fff; margin-top: 14px;">روش ۱: استقرار با Docker روی سرور مجازی (VPS)</h4>
+            <div class="code-snippet">
+docker build -t gold-bullion-app .<br>
+docker run -d -p 8000:8000 --name gold-app --restart always gold-bullion-app
+            </div>
+
+            <h4 style="color: #fff; margin-top: 14px;">روش ۲: اتصال دامین از طریق Nginx و SSL رایگان (Certbot)</h4>
+            <div class="code-snippet">
+server {<br>
+&nbsp;&nbsp;server_name gold.yourdomain.com;<br>
+&nbsp;&nbsp;location / {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;proxy_pass http://localhost:8000;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;proxy_http_version 1.1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;proxy_set_header Upgrade $http_upgrade;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;proxy_set_header Connection "upgrade";<br>
+&nbsp;&nbsp;&nbsp;&nbsp;proxy_set_header Host $host;<br>
+&nbsp;&nbsp;}<br>
+}
+            </div>
+
+            <h4 style="color: #fff; margin-top: 14px;">روش ۳: استقرار ابری در پلتفرم‌های Render / Railway</h4>
+            <p>کافیست پروژه را به مخزن GitHub خود متصل کنید و در پلتفرم Render یا Railway گزینه New Web Service را انتخاب کنید. در پنل پلتفرم، در بخش Custom Domains دامنه خود را اضافه کنید.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // State management
+    let currentCurrency = 'toman'; // 'toman' or 'rial'
+    let currentData = null;
+    let countdownRemaining = 30;
+    let countdownInterval = null;
+    let ws = null;
+    let chartInstance = null;
+    const TOTAL_INTERVAL = 30;
+
+    // Currency Formatter
+    function formatNumber(num) {
+        if (num === null || num === undefined || isNaN(num)) return '---';
+        return Math.round(num).toLocaleString('en-US');
+    }
+
+    function setCurrency(curr) {
+        currentCurrency = curr;
+        document.getElementById('btnToman').classList.toggle('active', curr === 'toman');
+        document.getElementById('btnRial').classList.toggle('active', curr === 'rial');
+
+        const unit = curr === 'toman' ? 'تومان' : 'ریال';
+        document.getElementById('currUnit1').textContent = unit;
+        document.getElementById('currUnit2').textContent = unit;
+        document.querySelectorAll('.curr-unit-text').forEach(el => el.textContent = unit);
+
+        if (currentData) {
+            renderDashboard(currentData);
+            runCalculator();
+        }
+    }
+
+    // Switch Tabs
+    function switchTab(tabId) {
+        ['bars', 'compare', 'calc'].forEach(t => {
+            document.getElementById('tabContent' + capitalize(t)).style.display = (t === tabId) ? 'block' : 'none';
+            document.getElementById('tabBtn' + capitalize(t)).classList.toggle('active', t === tabId);
+        });
+        if (tabId === 'compare' && chartInstance) {
+            chartInstance.resize();
+        }
+    }
+
+    function capitalize(s) {
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    // Countdown ring animation
+    function startCountdown(seconds) {
+        countdownRemaining = seconds;
+        updateCountdownUI();
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        countdownInterval = setInterval(() => {
+            countdownRemaining--;
+            if (countdownRemaining <= 0) {
+                countdownRemaining = 0;
+                updateCountdownUI();
+                // If websocket hasn't delivered a tick, trigger REST poll
+                fetchRates();
+            } else {
+                updateCountdownUI();
+            }
+        }, 1000);
+    }
+
+    function updateCountdownUI() {
+        const textEl = document.getElementById('countdownText');
+        const progressEl = document.getElementById('timerProgress');
+        textEl.textContent = countdownRemaining;
+
+        // Circumference = 2 * PI * 13 ≈ 81.68
+        const totalLen = 81.68;
+        const offset = totalLen - (countdownRemaining / TOTAL_INTERVAL) * totalLen;
+        progressEl.style.strokeDashoffset = offset;
+
+        if (countdownRemaining <= 5) {
+            progressEl.style.stroke = 'var(--rose-red)';
+        } else {
+            progressEl.style.stroke = 'var(--gold-primary)';
+        }
+    }
+
+    // API Host Resolver (Works for localhost:8000, Custom Domain, or direct file:/// opening)
+    function getApiBase() {
+        if (window.location.protocol === 'file:' || !window.location.host) {
+            return 'http://localhost:8000';
+        }
+        return '';
+    }
+
+    // WebSocket Management with Auto-Reconnect & Fallback
+    function initWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = (window.location.protocol === 'file:' || !window.location.host) ? 'localhost:8000' : window.location.host;
+        const wsUrl = `${protocol}//${host}/ws`;
+
+        try {
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                document.getElementById('wsStatusBadge').textContent = 'WebSocket: زنده و فعال';
+                document.getElementById('wsStatusBadge').style.color = 'var(--emerald-green)';
+                document.getElementById('offlineNotice').style.display = 'none';
+                addLog('اتصال وب‌سوکت با سرور برقرار شد.');
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'tick' || msg.type === 'init') {
+                        document.getElementById('offlineNotice').style.display = 'none';
+                        onNewDataReceived(msg.data);
+                    }
+                } catch (e) {
+                    console.error('Error parsing WS message:', e);
+                }
+            };
+
+            ws.onclose = () => {
+                document.getElementById('wsStatusBadge').textContent = 'WebSocket: قطع (در حال تلاش...)';
+                document.getElementById('wsStatusBadge').style.color = 'var(--rose-red)';
+                setTimeout(initWebSocket, 4000);
+            };
+
+            ws.onerror = () => {
+                ws.close();
+            };
+        } catch (e) {
+            console.warn('WebSocket init failed, relying on REST polling:', e);
+        }
+    }
+
+    // REST Fallback fetch
+    async function fetchRates() {
+        const apiBase = getApiBase();
+        try {
+            const res = await fetch(`${apiBase}/api/rates`);
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('offlineNotice').style.display = 'none';
+                onNewDataReceived(data);
+                return;
+            }
+        } catch (e) {
+            console.debug('REST fetch unavailable from', apiBase, e);
+        }
+
+        // Server is not running
+        document.getElementById('offlineNotice').style.display = 'block';
+        document.getElementById('syncBadge').textContent = '⚠️ سرور آفلاین (لطفاً start.bat را اجرا کنید)';
+        document.getElementById('syncBadge').style.color = '#ef4444';
+
+        if (!currentData) {
+            addLog('⚠️ عدم امکان اتصال به سرور محلی. لطفا start.bat را اجرا کرده یا به http://localhost:8000 بروید.');
+        }
+        startCountdown(TOTAL_INTERVAL);
+    }
+
+    // Manual Refresh
+    async function manualRefresh() {
+        const apiBase = getApiBase();
+        addLog('درخواست به‌روزرسانی فوری ارسال شد...');
+        try {
+            const res = await fetch(`${apiBase}/api/refresh`, { method: 'POST' });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.data) {
+                    document.getElementById('offlineNotice').style.display = 'none';
+                    onNewDataReceived(data.data);
+                    return;
+                }
+            }
+        } catch (e) {
+            fetchRates();
+        }
+    }
+
+    function onNewDataReceived(data) {
+        currentData = data;
+        renderDashboard(data);
+        startCountdown(data.countdown_seconds || TOTAL_INTERVAL);
+        updateHistoryChart();
+        flashUpdatedCards();
+        addLog(`دریافت تیک ۳۰ ثانیه‌ای: انس=${data.inputs.gold_ounce_usd}$ | دلار=${formatNumber(data.inputs.usd_toman)} T | حباب=${data.bullion_24k.bubble_pct}%`);
+    }
+
+    function flashUpdatedCards() {
+        const cards = [document.getElementById('cardFair24'), document.getElementById('cardMarket24'), document.getElementById('cardBubble24')];
+        cards.forEach(c => {
+            c.classList.remove('flash-tick');
+            void c.offsetWidth; // trigger reflow
+            c.classList.add('flash-tick');
+        });
+    }
+
+    // Render Full Dashboard
+    function renderDashboard(data) {
+        const isToman = currentCurrency === 'toman';
+        const mult = isToman ? 1 : 10;
+        const b24 = data.bullion_24k;
+        const inp = data.inputs;
+
+        // Hero Card 1: Fair 24k
+        const fairGram = isToman ? b24.fair_per_gram_toman : b24.fair_per_gram_rial;
+        const fairKg = isToman ? b24.fair_per_kg_toman : b24.fair_per_kg_rial;
+        document.getElementById('fairGramPrice').textContent = formatNumber(fairGram);
+        document.getElementById('fairKgPrice').textContent = formatNumber(fairKg);
+        document.getElementById('formulaText').textContent = `فرمول: (${inp.gold_ounce_usd}$ × ${formatNumber(isToman ? inp.usd_toman : inp.usd_rial)} ${isToman ? 'تومان' : 'ریال'}) ÷ ۳۱.۱۰۳۵ گرم`;
+        document.getElementById('syncBadge').textContent = `منبع: ${data.sources.gold_silver} & ${data.sources.currency_market}`;
+
+        // Hero Card 2: Market 24k
+        const marketGram = isToman ? b24.market_per_gram_toman : b24.market_per_gram_rial;
+        const marketKg = isToman ? b24.market_per_kg_toman : b24.market_per_kg_rial;
+        document.getElementById('marketGramPrice').textContent = formatNumber(marketGram);
+        document.getElementById('marketKgPrice').textContent = formatNumber(marketKg);
+
+        // Hero Card 3: Bubble
+        const bubbleAmt = (marketGram - fairGram);
+        const bubbleKg = (marketKg - fairKg);
+        const bPct = b24.bubble_pct;
+        const bPercentEl = document.getElementById('bubblePercentText');
+        bPercentEl.textContent = `${bPct >= 0 ? '+' : ''}${bPct.toFixed(2)}٪`;
+        bPercentEl.style.color = b24.bubble_color;
+
+        document.getElementById('bubbleAmountText').textContent = `${formatNumber(bubbleAmt)} ${isToman ? 'تومان' : 'ریال'}`;
+        document.getElementById('bubbleKgText').textContent = `${formatNumber(bubbleKg)} ${isToman ? 'تومان' : 'ریال'}`;
+        document.getElementById('bubbleStatusText').textContent = b24.bubble_status;
+        document.getElementById('bubbleStatusText').style.color = b24.bubble_color;
+
+        const riskEl = document.getElementById('riskBadge');
+        riskEl.textContent = b24.risk_level;
+        riskEl.style.color = b24.bubble_color;
+        riskEl.style.background = `${b24.bubble_color}22`;
+
+        // Progress bar width
+        const barWidth = Math.min(100, Math.max(5, (bPct + 5) * 8));
+        document.getElementById('bubbleProgressBar').style.width = `${barWidth}%`;
+
+        // Benchmark Tickers
+        document.getElementById('tvOuncePrice').textContent = `$${inp.gold_ounce_usd.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        const tvCh = inp.gold_ounce_change;
+        const tvChEl = document.getElementById('tvOunceChange');
+        tvChEl.className = `ticker-change num ${tvCh >= 0 ? 'up' : 'down'}`;
+        tvChEl.innerHTML = `<span>${tvCh >= 0 ? '▲' : '▼'}</span> <span>${tvCh >= 0 ? '+' : ''}${tvCh.toFixed(2)}%</span>`;
+
+        // USD
+        document.getElementById('tgjuUsdPrice').textContent = formatNumber(isToman ? inp.usd_toman : inp.usd_rial);
+        const usdCh = inp.usd_change;
+        const usdChEl = document.getElementById('tgjuUsdChange');
+        usdChEl.className = `ticker-change num ${usdCh >= 0 ? 'up' : 'down'}`;
+        usdChEl.innerHTML = `<span>${usdCh >= 0 ? '▲' : '▼'}</span> <span>${usdCh >= 0 ? '+' : ''}${usdCh.toFixed(2)}%</span>`;
+
+        // Silver
+        document.getElementById('tvSilverPrice').textContent = `$${inp.silver_ounce_usd.toFixed(2)}`;
+        document.getElementById('goldSilverRatio').textContent = `نسبت طلا به نقره: ${data.ratios.gold_silver_ratio}`;
+
+        // 18k
+        const g18 = data.comparisons.gold_18k;
+        document.getElementById('tgju18Price').textContent = formatNumber(isToman ? g18.market_per_gram_toman : g18.market_per_gram_toman * 10);
+        document.getElementById('bubble18kText').textContent = `حباب: ${g18.bubble_pct >= 0 ? '+' : ''}${g18.bubble_pct}%`;
+
+        // Standard Bullion Bars Matrix
+        renderBullionBars(data.bullion_bars, isToman);
+
+        // Comparison Table
+        renderComparisons(data.comparisons, isToman);
+    }
+
+    function renderBullionBars(bars, isToman) {
+        const container = document.getElementById('barsGridContainer');
+        const unit = isToman ? 'تومان' : 'ریال';
+        const mult = isToman ? 1 : 10;
+
+        container.innerHTML = bars.map(bar => {
+            const fair = bar.fair_price_toman * mult;
+            const market = bar.market_price_toman * mult;
+            const bubble = market - fair;
+            const bPct = bar.bubble_pct;
+            const isPos = bPct >= 0;
+
+            return `
+            <div class="bar-card">
+                <div class="bar-top">
+                    <span class="bar-weight">${bar.name}</span>
+                    <span class="bar-tag">${bar.category}</span>
+                </div>
+                <div class="bar-row">
+                    <span class="label">ارزش ذاتی و ریاضی:</span>
+                    <span class="val fair num">${formatNumber(fair)} ${unit}</span>
+                </div>
+                <div class="bar-row">
+                    <span class="label">مظنه بازار ایران:</span>
+                    <span class="val num">${formatNumber(market)} ${unit}</span>
+                </div>
+                <div class="bar-row" style="margin-top: 8px; border-top: 1px dashed var(--border-subtle); padding-top: 6px;">
+                    <span class="label">میزان حباب:</span>
+                    <span class="val bubble num ${isPos ? 'up' : 'down'}">${formatNumber(bubble)} (${bPct >= 0 ? '+' : ''}${bPct}%)</span>
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    function renderComparisons(comp, isToman) {
+        const container = document.getElementById('compareTableContainer');
+        const unit = isToman ? 'تومان' : 'ریال';
+        const mult = isToman ? 1 : 10;
+
+        const items = [
+            { name: 'طلای ۱۸ عیار (۷۵۰)', fair: comp.gold_18k.fair_per_gram_toman, market: comp.gold_18k.market_per_gram_toman, pct: comp.gold_18k.bubble_pct },
+            { name: 'نقره خالص ۹۹۹ (هر گرم)', fair: comp.silver_999.fair_per_gram_toman, market: comp.silver_999.market_per_gram_toman, pct: comp.silver_999.bubble_pct },
+            { name: 'مظنه طلا (مثقال ۱۷ عیار آبشده)', fair: comp.mithqal.fair_toman, market: comp.mithqal.market_toman, pct: comp.mithqal.bubble_pct }
+        ];
+
+        container.innerHTML = items.map(item => `
+            <div style="background: var(--bg-subtle); border-radius: var(--radius-sm); padding: 12px; border: 1px solid var(--border-subtle);">
+                <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px;">
+                    <span>${item.name}</span>
+                    <span class="num ${item.pct >= 0 ? 'up' : 'down'}">حباب: ${item.pct >= 0 ? '+' : ''}${item.pct}%</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted);">
+                    <span>ارزش جهانی: <strong class="num" style="color: var(--gold-light);">${formatNumber(item.fair * mult)} ${unit}</strong></span>
+                    <span>بازار داخلی: <strong class="num" style="color: #fff;">${formatNumber(item.market * mult)} ${unit}</strong></span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Calculator Logic
+    function runCalculator() {
+        if (!currentData) return;
+        const isToman = currentCurrency === 'toman';
+        const mult = isToman ? 1 : 10;
+        const unit = isToman ? 'تومان' : 'ریال';
+
+        const fairGram = currentData.bullion_24k.fair_per_gram_toman * mult;
+        const marketGram = currentData.bullion_24k.market_per_gram_toman * mult;
+
+        // Weight Calc
+        const weight = parseFloat(document.getElementById('calcWeightInput').value) || 0;
+        const fairTotal = weight * fairGram;
+        const marketTotal = weight * marketGram;
+        const bubbleTotal = marketTotal - fairTotal;
+        const bubblePct = fairTotal > 0 ? ((bubbleTotal / fairTotal) * 100).toFixed(2) : 0;
+
+        document.getElementById('calcWeightResult').innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span style="color: var(--text-muted);">ارزش ذاتی ${weight} گرم شمش ۲۴:</span>
+                <strong class="num" style="color: var(--gold-light);">${formatNumber(fairTotal)} ${unit}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span style="color: var(--text-muted);">مظنه بازار ایران:</span>
+                <strong class="num" style="color: #fff;">${formatNumber(marketTotal)} ${unit}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-top: 1px dashed var(--border-subtle); padding-top: 6px;">
+                <span style="color: var(--text-muted);">حباب این وزن:</span>
+                <strong class="num ${bubbleTotal >= 0 ? 'up' : 'down'}">${formatNumber(bubbleTotal)} ${unit} (${bubblePct}%)</strong>
+            </div>
+        `;
+
+        // Budget Calc
+        const budget = (parseFloat(document.getElementById('calcBudgetInput').value) || 0) * (isToman ? 1 : 10);
+        const gramsFair = fairGram > 0 ? (budget / fairGram).toFixed(3) : 0;
+        const gramsMarket = marketGram > 0 ? (budget / marketGram).toFixed(3) : 0;
+
+        document.getElementById('calcBudgetResult').innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span style="color: var(--text-muted);">وزن شمش بر اساس ارزش واقعی:</span>
+                <strong class="num" style="color: var(--gold-light); font-size: 1.05rem;">${gramsFair} گرم</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span style="color: var(--text-muted);">وزن قابل خرید در بازار تهران:</span>
+                <strong class="num" style="color: #fff; font-size: 1.05rem;">${gramsMarket} گرم</strong>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 6px;">
+                اختلاف ناشی از حباب: <strong>${Math.abs(gramsFair - gramsMarket).toFixed(3)} گرم</strong> طلا
+            </div>
+        `;
+    }
+
+    // Live Chart Setup
+    async function initChart() {
+        const ctx = document.getElementById('bullionTrendChart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'ارزش واقعی شمش ۲۴ (تومان)',
+                        data: [],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2.5,
+                        tension: 0.35,
+                        fill: true
+                    },
+                    {
+                        label: 'نرخ بازار ایران (تومان)',
+                        data: [],
+                        borderColor: '#94a3b8',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0.35,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#64748b', font: { family: 'Vazirmatn' } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#64748b', font: { family: 'Vazirmatn' } }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#cbd5e1', font: { family: 'Vazirmatn', size: 12 } }
+                    }
+                }
+            }
+        });
+
+        // Load historical points
+        try {
+            const res = await fetch(`${getApiBase()}/api/history`);
+            if (res.ok) {
+                const json = await res.json();
+                if (json.history && json.history.length > 0) {
+                    chartInstance.data.labels = json.history.map(h => h.time);
+                    chartInstance.data.datasets[0].data = json.history.map(h => h.fair_24k);
+                    chartInstance.data.datasets[1].data = json.history.map(h => h.market_24k);
+                    chartInstance.update();
+                }
+            }
+        } catch (e) {
+            console.warn('History fetch error:', e);
+        }
+    }
+
+    function updateHistoryChart() {
+        if (!chartInstance || !currentData) return;
+        const now = new Date().toLocaleTimeString('fa-IR');
+        const fair = currentData.bullion_24k.fair_per_gram_toman;
+        const market = currentData.bullion_24k.market_per_gram_toman;
+
+        chartInstance.data.labels.push(now);
+        chartInstance.data.datasets[0].data.push(fair);
+        chartInstance.data.datasets[1].data.push(market);
+
+        if (chartInstance.data.labels.length > 30) {
+            chartInstance.data.labels.shift();
+            chartInstance.data.datasets[0].data.shift();
+            chartInstance.data.datasets[1].data.shift();
+        }
+        chartInstance.update('none');
+    }
+
+    // Modal Control
+    function openDomainModal() {
+        document.getElementById('domainModal').classList.add('active');
+    }
+
+    function closeDomainModal() {
+        document.getElementById('domainModal').classList.remove('active');
+    }
+
+    // Log helper
+    function addLog(msg) {
+        const list = document.getElementById('eventLogsList');
+        const now = new Date().toLocaleTimeString('fa-IR');
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="log-time">[${now}]</span> ${msg}`;
+        list.insertBefore(li, list.firstChild);
+        if (list.children.length > 20) {
+            list.removeChild(list.lastChild);
+        }
+    }
+
+    // Startup Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+        fetchRates();
+        initWebSocket();
+        initChart();
+        runCalculator();
+    });
+</script>
+</body>
+</html>
